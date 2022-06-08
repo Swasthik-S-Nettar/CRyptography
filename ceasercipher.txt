@@ -1,0 +1,46 @@
+import string
+def encrypt(text,s):
+    res=""
+    for i in range(len(text)):
+        char=text[i]
+        if(char.isupper()):
+            res+=chr((ord(char)+s-65)%26+65)
+        else:
+            res+=chr((ord(char)+s-97)%26+97)
+    return res
+    
+    
+def decrypt(text,key):
+    alphabet = string.ascii_lowercase
+    
+    decrypted_msg=""
+    
+    for c in text:
+        if c in alphabet:
+            
+            pos = alphabet.find(c)
+            new_pos = (pos - key) % 26
+            new_char = alphabet[new_pos]
+            decrypted_msg += new_char
+        else:
+            decrypted_msg += c
+    print("Decrypted text is:",decrypted_msg)
+            
+
+    
+print("Select the choice")
+s=int(input("1:Encrypt \n2:Decrypt:\n"))
+
+if(s==1):
+    stri=input("Enter plain text:")
+    n=int(input("Enter number of shifts:"))
+
+    answer=encrypt(stri,n)
+    print("Cipher text is ",answer)
+
+elif(s==2):
+    str1=input("Enter the cipher text:")
+    key=int(input("Enter the key for decryption:"))
+    decrypt(str1,key)
+
+            

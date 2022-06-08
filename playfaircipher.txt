@@ -1,0 +1,235 @@
+import string
+
+
+def key_generation(key):
+    
+    alpha=string.ascii_lowercase.replace('j','.')
+    
+    key=key.lower()# lowercase conversion
+    
+    key_matrix=['' for i in range(5)]#spaces ignored
+    
+    i=0;j=0
+    for c in key:
+        if c in alpha:
+            
+            key_matrix[i]+=c # putting into matrix
+
+           
+            alpha=alpha.replace(c,'.')#characters found replaced by '.'
+            
+            j+=1
+            
+            if(j>4):# if column count exceeds 5,go to next row
+                
+                i+=1# row count is increased
+                
+                j=0# column count is set again to zero
+
+   
+    for c in alpha:  #remaining alphabets placed in key matrix
+        if c!='.':  #in alphabet list except'.'all characters being filled
+            key_matrix[i]+=c
+
+            j+=1
+            if j>4:
+                i+=1
+                j=0
+    matrix= [list(ele) for ele in key_matrix]  #converted to matrix form displaying
+    print(matrix)
+    
+    return(key_matrix)
+
+
+
+
+def encryptconversion(plain_text):  #encryption
+    
+    plain_text_pairs=[]
+    
+    cipher_text_pairs=[]
+
+    
+    plain_text=plain_text.replace(" ","")# remove spaces
+    
+    plain_text=plain_text.lower()#lowrcase
+
+    
+    #Rule 1 replace consecutive similar characters with 'x' in between them
+    i=0
+    
+    while i<len(plain_text):
+        
+        a=plain_text[i]
+        b=''
+
+        if((i+1)==len(plain_text)):   # if length is odd last character is added with 'x'
+            
+            b='x'
+        else:
+            
+            b=plain_text[i+1] # next letter paired here
+
+        if(a!=b):
+            plain_text_pairs.append(a+b)  #if different both are paired
+            
+            i+=2
+        else:
+            plain_text_pairs.append(a+'x')  #if same adding an 'x' in between
+            
+            i+=1
+            
+    print("plain text pairs: ",plain_text_pairs)
+
+
+    for pair in plain_text_pairs:
+        # RULE2: same row,then immdeiate right letters replaced
+        flag=False
+        for row in key_matrix:
+            if(pair[0] in row and pair[1] in row):
+                
+                j0=row.find(pair[0])# find will return index of a letter in string
+                j1=row.find(pair[1])
+                cipher_text_pair=row[(j0+1)%5]+row[(j1+1)%5]
+                cipher_text_pairs.append(cipher_text_pair)
+                flag=True
+        if flag:
+            continue
+
+        # RULE3: same column,then immediate below characters replaced
+                
+        for j in range(5):
+            col="".join([key_matrix[i][j] for i in range(5)])
+            if(pair[0] in col and pair[1] in col):
+                
+                i0=col.find(pair[0])
+                i1=col.find(pair[1])
+                cipher_text_pair=col[(i0+1)%5]+col[(i1+1)%5]
+                cipher_text_pairs.append(cipher_text_pair)
+                flag=True
+        if flag:
+            continue
+        #RULE:4 different row and column,then corner pair in rectangle formed by the pair of characters are replaced
+
+        i0=0
+        i1=0
+        j0=0
+        j1=0
+
+        for i in range(5):
+            row=key_matrix[i]
+            if(pair[0] in row):
+                i0=i
+                j0=row.find(pair[0])
+            if(pair[1] in row):
+                i1=i
+                j1=row.find(pair[1])
+        cipher_text_pair=key_matrix[i0][j1]+key_matrix[i1][j0]
+        cipher_text_pairs.append(cipher_text_pair)
+        
+        
+    print("cipher text pairs: ",cipher_text_pairs)
+    # final statements
+    print('plain text: ',plain_text)
+    print('cipher text: ',"".join(cipher_text_pairs))
+    
+def decryptconversion(cipher_text):  #decryption with rules as same as encryption
+    
+    plain_text_pairs=[]
+    
+    cipher_text_pairs=[]
+
+    
+    cipiher_text=cipher_text.lower()
+
+    # RULE1: replace consecutive similar characters with 'x' in between them
+
+    i=0
+    while i<len(cipher_text):
+       
+        a=cipher_text[i]
+        b=cipher_text[i+1]
+
+        cipher_text_pairs.append(a+b)
+       
+        i+=2
+            
+    print("cipher text pairs: ",cipher_text_pairs)
+
+
+    for pair in cipher_text_pairs:
+        # RULE2: same row,then immdeiate right letters replaced
+        flag=False
+        for row in key_matrix:
+            if(pair[0] in row and pair[1] in row):
+                
+                j0=row.find(pair[0])
+                j1=row.find(pair[1])
+                
+                plain_text_pair=row[(j0+4)%5]+row[(j1+4)%5] # instead of -1(like +1 in encryption) we are doing +4 as it is modulo 5
+                plain_text_pairs.append(plain_text_pair)
+                flag=True
+        if flag:
+            continue
+
+        # RULE3: same column,then immediate below characters replaced
+                
+        for j in range(5):
+            col="".join([key_matrix[i][j] for i in range(5)])
+            if(pair[0] in col and pair[1] in col):
+               
+                i0=col.find(pair[0])
+                i1=col.find(pair[1])
+                
+                plain_text_pair=col[(i0+4)%5]+col[(i1+4)%5]
+                plain_text_pairs.append(plain_text_pair)
+                flag=True
+        if flag:
+            continue
+        #RULE:4  different row and column,then corner pair in rectangle formed by the pair of characters are replaced
+
+        i0=0
+        i1=0
+        j0=0
+        j1=0
+
+        for i in range(5):
+            row=key_matrix[i]
+            if(pair[0] in row):
+                i0=i
+                j0=row.find(pair[0])
+            if(pair[1] in row):
+                i1=i
+                j1=row.find(pair[1])
+        plain_text_pair=key_matrix[i0][j1]+key_matrix[i1][j0]
+        plain_text_pairs.append(plain_text_pair)
+        
+    print("plain text pairs: ",plain_text_pairs)
+    # final statements
+    
+    print('cipher text: ',"".join(cipher_text_pairs))
+    print('plain text message: ',"".join(plain_text_pairs))
+
+
+s=int(input("Select choice\n1:Encrypt\n2:Decrypt\n"))
+if s==1:
+    key=input("Enter key for encryption: ")
+
+# calling first function
+
+    print("Key Matrix for encryption:")
+    key_matrix=key_generation(key)
+    plain_text=input("Enter the  plain text message: ")
+
+# calling second function
+    encryptconversion(plain_text)
+elif(s==2):
+    key=input("Enter the key for decryption: ")
+
+# calling first function
+
+    print("Key Matrix for decryption:")
+    key_matrix=key_generation(key)
+    cipher_text=input("Enter the  cipher text message: ")
+    decryptconversion(cipher_text)
+    
